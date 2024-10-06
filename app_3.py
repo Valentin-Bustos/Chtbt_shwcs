@@ -4,6 +4,8 @@ Created on Sun Oct  6 20:23:09 2024
 
 @author: Valentin
 """
+pip install openai
+
 import re
 import streamlit as st
 from openai import OpenAI
