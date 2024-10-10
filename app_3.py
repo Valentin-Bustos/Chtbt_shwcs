@@ -2,15 +2,17 @@
 """
 Created on Sun Oct  6 20:23:09 2024
 
+Modified on Fri Oct 11
+
 @author: Valentin
 """
-
 import re
+import os
 import streamlit as st
 from openai import OpenAI
 
 # Load API key and prompts
-api_key = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/API Keys/OpenAI key.txt', 'r').read()
+api_key = st.secrets["general"]["OPENAI_API_KEY"]
 
 # Single Model Prompts
 s_Zero = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Zero Shot/Zero Shot Single Model.txt', 'r').read()
@@ -56,7 +58,7 @@ if st.session_state.selected_model is None:
 # Layer 2: Select Prompt Type
 if st.session_state.selected_model is not None and 'selected_prompt' not in st.session_state:
     st.title("Select Prompt Type")
-    
+
     if st.session_state.selected_model == 'single':
         if st.button("Zero Shot"):
             st.session_state.selected_prompt = s_Zero
@@ -85,8 +87,8 @@ if 'selected_prompt' in st.session_state:
     st.title("Chat Interface")
     st.write(f"Model: {st.session_state.selected_model.capitalize()} Model")
     st.write(f"Prompt Type: {'Zero Shot' if 'Zero Shot' in st.session_state.selected_prompt else 'Few Shot'}")
-    
-    
+
+
     # Create an empty container for chat display
     chat_container = st.empty()
 
@@ -96,7 +98,7 @@ if 'selected_prompt' in st.session_state:
 
     # Input for user to chat
     user_input = st.text_input("Your message:")
-    
+
     if st.button("Send"):
         st.session_state.chat.append({'role':'user','content':user_input})
         st.session_state.chat_history.append({'role':'user','content':user_input})
@@ -111,8 +113,8 @@ if 'selected_prompt' in st.session_state:
             res = response.choices[0].message.content
             st.session_state.chat.append({'role': 'Chatbot', 'content': res})
             st.session_state.chat_history.append({'role': 'assistant', 'content': res})
-            
-            
+
+
         elif st.session_state.selected_model == 'dual':
             # Interact with dual model chatbot
             response = d_cb.chat.completions.create(
@@ -129,22 +131,19 @@ if 'selected_prompt' in st.session_state:
             classifier_response = classification.choices[0].message.content
             st.session_state.classification_history.append({'role': 'assistant', 'content': classifier_response})
             st.session_state.chat.append({'role': 'Classifier', 'content': classifier_response})
-            
+
             risk_value_match = re.search(r"\d+(\.\d+)?", classifier_response)
             if risk_value_match:
                 if st.session_state.risk_val < 3:
                     st.session_state.risk_val = float(risk_value_match.group(0))
                     if st.session_state.risk_val > 2:
                         system_prompt = h_r_prompt
+                        st.session_state.classification_history.append({"role": "system", "content": system_prompt})
                         st.session_state.classification_history.append({"role": "assistant", "content": "[HIGH RISK SYSTEM PROMPT NOW IN USE]"})
                         st.session_state.chat.append({'role': 'Classifier', 'content': '[HIGH RISK SYSTEM PROMPT NOW IN USE]'})
-            
+
         # Refresh the chat display after sending a message
         chat_history_str = "\n\n".join([f"{entry['role'].capitalize()}: {entry['content']}" for entry in st.session_state.chat])
         chat_container.text_area("Conversation", value=chat_history_str, height=400, disabled=True)
-        
+
         st.rerun()
-
-
-
-
