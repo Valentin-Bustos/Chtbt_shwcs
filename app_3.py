@@ -15,19 +15,19 @@ from openai import OpenAI
 api_key = st.secrets["general"]["OPENAI_API_KEY"]
 
 # Single Model Prompts
-s_Zero = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Zero Shot/Zero Shot Single Model.txt', 'r').read()
-s_Few = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Multi Shot/Few Shot Single Model.txt', 'r').read()
+s_Zero = open(r'Prompts/Zero Shot/Zero Shot Single Model.txt', 'r').read()
+s_Few = open(r'Prompts/Multi Shot/Few Shot Single Model.txt', 'r').read()
 
 # Dual Model Chatbot Prompts
-d_cb_zero = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Zero Shot/Zero Shot Dual Model.txt', 'r').read()
-d_cb_few = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Multi Shot/Few Shot Dual Model.txt', 'r').read()
+d_cb_zero = open(r'Prompts/Zero Shot/Zero Shot Dual Model.txt', 'r').read()
+d_cb_few = open(r'Prompts/Multi Shot/Few Shot Dual Model.txt', 'r').read()
 
 # Dual Model Classifier Prompts
-d_cl_zero = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Evaluator Prompt/Zero_Shot_Dual_Model_Intergration_Prompt.txt', 'r').read()
-d_cl_few = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/Evaluator Prompt/Few_Shot_Dual_Model_Intergration_Prompt.txt', 'r').read()
+d_cl_zero = open(r'Prompts/Evaluator Prompt/Zero_Shot_Dual_Model_Intergration_Prompt.txt', 'r').read()
+d_cl_few = open(r'Prompts/Evaluator Prompt/Few_Shot_Dual_Model_Intergration_Prompt.txt', 'r').read()
 
 # High Risk Prompt
-h_r_prompt = open(r'C:/Users/Valentin/OneDrive - Victoria University of Wellington - STUDENT/CBNS580/Prompts/High Risk Prompt/High risk Prompt.txt', 'r').read()
+h_r_prompt = open(r'Prompts/High Risk Prompt/High risk Prompt.txt', 'r').read()
 
 # OpenAI Client
 s_chatbot = OpenAI(api_key=api_key)
