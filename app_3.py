@@ -88,62 +88,67 @@ if 'selected_prompt' in st.session_state:
     st.write(f"Model: {st.session_state.selected_model.capitalize()} Model")
     st.write(f"Prompt Type: {'Zero Shot' if 'Zero Shot' in st.session_state.selected_prompt else 'Few Shot'}")
 
-
-    # Create an empty container for chat display
-    chat_container = st.empty()
-
-    # Display the chat history dynamically, ensuring the latest messages are shown
-    chat_history_str = "\n\n".join([f"{entry['role'].capitalize()}: {entry['content']}" for entry in st.session_state.chat])
-    chat_container.text_area("Conversation", value=chat_history_str, height=400, disabled=True)
+    # Display previous chat history using the new streamlit chat interface
+    for message in st.session_state.chat:
+        with st.chat_message(message['role']):
+            st.markdown(message['content'])
 
     # Input for user to chat
-    user_input = st.text_input("Your message:")
+    if prompt := st.chat_input("Your message:"):
+        # Append user's message to chat and session state
+        st.session_state.chat.append({'role': 'user', 'content': prompt})
+        st.session_state.chat_history.append({'role': 'user', 'content': prompt})
+        st.session_state.classification_history.append({'role': 'user', 'content': prompt})
 
-    if st.button("Send"):
-        st.session_state.chat.append({'role':'user','content':user_input})
-        st.session_state.chat_history.append({'role':'user','content':user_input})
-        st.session_state.classification_history.append({'role':'user','content':user_input})
-        # Here, you'd call your API to get the chatbot response
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Get the assistant's response
         if st.session_state.selected_model == 'single':
             # Interact with single model chatbot
-            response = s_chatbot.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=st.session_state.chat_history
+            with st.chat_message("assistant"):
+                stream = s_chatbot.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=st.session_state.chat_history,
+                    stream=True
                 )
-            res = response.choices[0].message.content
-            st.session_state.chat.append({'role': 'Chatbot', 'content': res})
-            st.session_state.chat_history.append({'role': 'assistant', 'content': res})
-
+                response = st.write_stream(stream)
+            st.session_state.chat.append({'role': 'Chatbot', 'content': response})
+            st.session_state.chat_history.append({'role': 'assistant', 'content': response})
 
         elif st.session_state.selected_model == 'dual':
             # Interact with dual model chatbot
-            response = d_cb.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=st.session_state.chat_history
+            with st.chat_message("assistant"):
+                stream = d_cb.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=st.session_state.chat_history,
+                    stream=True
                 )
-            res = response.choices[0].message.content
-            st.session_state.chat_history.append({'role': 'assistant', 'content': res})
-            st.session_state.chat.append({'role': 'Chatbot', 'content': res})
-            classification = d_cl.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=st.session_state.classification_history
+                response = st.write_stream(stream)
+            st.session_state.chat_history.append({'role': 'assistant', 'content': response})
+            st.session_state.chat.append({'role': 'Chatbot', 'content': response})
+
+            # Get classifier response
+            with st.chat_message("classifier"):
+                classifier_stream = d_cl.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=st.session_state.classification_history,
+                    stream=True
                 )
-            classifier_response = classification.choices[0].message.content
+                classifier_response = st.write_stream(classifier_stream)
             st.session_state.classification_history.append({'role': 'assistant', 'content': classifier_response})
             st.session_state.chat.append({'role': 'Classifier', 'content': classifier_response})
 
+            # Check for risk values and handle high-risk scenarios
             risk_value_match = re.search(r"\d+(\.\d+)?", classifier_response)
             if risk_value_match:
                 if st.session_state.risk_val < 3:
                     st.session_state.risk_val = float(risk_value_match.group(0))
                     if st.session_state.risk_val > 2:
+                        # Apply the high-risk prompt if needed
                         system_prompt = h_r_prompt
                         st.session_state.classification_history.append({"role": "system", "content": system_prompt})
                         st.session_state.classification_history.append({"role": "assistant", "content": "[HIGH RISK SYSTEM PROMPT NOW IN USE]"})
                         st.session_state.chat.append({'role': 'Classifier', 'content': '[HIGH RISK SYSTEM PROMPT NOW IN USE]'})
 
-        # Refresh the chat display after sending a message
-        chat_history_str = "\n\n".join([f"{entry['role'].capitalize()}: {entry['content']}" for entry in st.session_state.chat])
-        chat_container.text_area("Conversation", value=chat_history_str, height=400, disabled=True)
-
-        st.rerun()
