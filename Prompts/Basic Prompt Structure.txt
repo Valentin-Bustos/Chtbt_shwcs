@@ -1,0 +1,24 @@
+* Characterisation
+o Playing the character of a
+* addiction chatbot
+* subtance abuse chatbot
+* mental health chatbot
+* Task Instructions
+o To summarize drug information in a quick and precise manner, classify if the individual is taking a drug and which drug they are taking
+o classify the stage of change an individual is at in their potential addiction.
+* Context
+o Include descriptions of what the withdrawal risk scale, MI and the SoC are?
+o Include the fact that the chatbot is being interacted with in a drug information website.
+o to be updated in the conversation, will contain drug being used and stage of change
+o Include safety precautions here?
+* Examples if applicable
+o MI
+* From MIA-STEP?
+o Stages of change
+* From scale items (substance abuse treatment and stages of change book)
+* University of Rhode Island Change Assessment Scale
+* Stages of change readiness and treatment eagerness scale
+* Readiness to change questionnaire
+* Output instructions
+o A transcript containing ONLY the conversation, no classification or scores
+o A raw transcript containing the classifications of every message, the overall SoC score, the withdrawal risk, and a summary of the interaction with the patient. 
